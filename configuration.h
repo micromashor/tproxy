@@ -1,0 +1,8 @@
+#ifndef _TPROXY_CONFIGURATION_H
+#define _TPROXY_CONFIGURATION_H
+
+#define TPROXY_CONFIG_DEFAULT_CONFIG_FILENAME "/etc/tproxy/tproxyd.conf"
+
+#define TPROXY_CONFIG_DAEMON_PROGRAM_NAME "tproxyd"
+
+#endif /* _TPROXY_CONFIGURATION_H */
