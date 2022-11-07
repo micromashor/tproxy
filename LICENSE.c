@@ -27,16 +27,3 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef _PIDFILE_H
-#define _PIDFILE_H
-
-#include <unistd.h>
-
-int pidfile_create(const char *filename);
-
-pid_t pidfile_read(const char *filename);
-
-int pidfile_destroy(const char *filename);
-
-#endif /* _PIDFILE_H */
