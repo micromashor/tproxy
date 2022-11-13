@@ -30,7 +30,7 @@ int pidfile_write(const char *filename)
 	if (!fp)
 		return -1;
 
-	if (fprintf("%ld\n", getpid()) <= 0) {
+	if (fprintf(fp, "%ld\n", (long) getpid()) <= 0) {
                 fclose(fp);
                 return -1;
         }
