@@ -9,7 +9,7 @@ CFLAGS=-g -O2 -pipe -Wno-error=format-truncation -Wall -Wextra -Werror -Wpointer
 LD=cc
 LDFLAGS=-L. -Wl,-z,relro -Wl,-z,now -Wl,-z,noexecstack -fstack-protector-strong -pie 
 
-TPROXYDOBJS=log.o pidfile.o failsafe.o
+TPROXYDOBJS=log.o pidfile.o failsafe.o proc.o
 
 default: tproxyd
 

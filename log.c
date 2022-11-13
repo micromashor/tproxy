@@ -26,8 +26,9 @@
 #include <sys/stat.h>
 #include <stdarg.h>
 
-#include "failsafe.h"
 #include "configuration.h"
+#include "failsafe.h"
+#include "proc.h"
 
 #include "log.h"
 
@@ -46,7 +47,6 @@ static struct log_hook *log_hooks = NULL;
 static size_t log_hooks_count = 0;
 static log_level_t log_level_main = LOGCH_INFO;
 static int log_flags = 0;
-static const char *progname = NULL;
 
 /* Log Channel Definitions */
 
@@ -158,21 +158,6 @@ log_facility_t log_facility_num(const char *name)
 
 /* Log control functions */
 
-static const char *get_progname(const char *argv0)
-{
-	size_t buf_len = strlen(argv0);
-	char buf[buf_len + 1];
-
-	strncpy(buf, argv0, buf_len + 1);
-
-	for (size_t i = 0; buf[i] != '\0'; i++) {
-		if (buf[i] == '%')
-			buf[i] = '-';
-	}
-
-	return xstrdup(basename(buf));
-}
-
 const char *log_init(const char *argv0, log_facility_t facility, int flags)
 {
 	if (!argv0 || index(argv0, '%'))
@@ -182,14 +167,10 @@ const char *log_init(const char *argv0, log_facility_t facility, int flags)
 	if (flags & ~(LOG_F_SYSLOG | LOG_F_STDERR | LOG_F_DEVERRNO))
 		return "illegal flags";
 
-	progname = get_progname(argv0);
-	if (!progname)
-		return "failed to get program name";
-
 	log_flags = flags;
 
 	if (flags & LOG_F_SYSLOG) {
-		openlog(progname, LOG_NDELAY | LOG_NOWAIT | LOG_PID,
+		openlog(proc_name, LOG_NDELAY | LOG_NOWAIT | LOG_PID,
 			log_facilities[facility].syslog_facility);
 
 		if (log_facilities[facility].flags & LOG_FACINFO_F_WARN)
@@ -351,7 +332,7 @@ void internal_log_direct(const char *file, unsigned long line, const char *func,
 
 	/*
                 Parts of a logmessage:
-                tag:      "%s[%llu]: ", progname, pid
+                tag:      "%s[%llu]: ", proc_name, pid
                 location: "(at %s:%d, in %s)", __FILE__, __LINE__, __func__
                 level:    "%s: ", log_level_name(level)
                 message:  "%s", fmt
@@ -359,7 +340,7 @@ void internal_log_direct(const char *file, unsigned long line, const char *func,
                 newline:  "\n"
         */
 
-	taglen = snprintf(NULL, 0, "%s[%llu]: ", progname,
+	taglen = snprintf(NULL, 0, "%s[%llu]: ", proc_name,
 			  (unsigned long long) getpid());
 	lvllen = snprintf(NULL, 0, "%s", log_level_name(level));
 	loclen = printloc ? snprintf(NULL, 0, " (at %s:%lu, in %s)", file, line,
@@ -385,7 +366,7 @@ void internal_log_direct(const char *file, unsigned long line, const char *func,
 	fmtstrend = fmtstr + fmtstrlen;
 
 	fmtstrp += snprintf(fmtstrp, fmtstrend - fmtstrp,
-			    "%s[%llu]: ", progname,
+			    "%s[%llu]: ", proc_name,
 			    (unsigned long long) getpid());
 	fmtstrp += snprintf(fmtstrp, fmtstrend - fmtstrp, "%s",
 			    log_level_name(level));
